@@ -4,11 +4,21 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; }
-  h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #faf7f4;
+    color: #2d2018;
+  }
+  h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
 }
 
 @layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;

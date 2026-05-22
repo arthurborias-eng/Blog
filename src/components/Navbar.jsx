@@ -6,8 +6,8 @@ import { LogOut, PenSquare, Menu, X } from 'lucide-react'
 export default function Navbar() {
   const { user, logout } = useAuth()
   const { pathname } = useLocation()
-  const [scrolled, setScrolled]   = useState(false)
-  const [menuOpen, setMenuOpen]   = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const isHome = pathname === '/'
 
@@ -17,8 +17,10 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const textClass = isHome && !scrolled ? 'text-white' : 'text-stone-900'
-  const bgClass   = isHome && !scrolled ? 'bg-transparent' : 'bg-white/95 backdrop-blur-md shadow-sm'
+  const textClass = isHome && !scrolled ? 'text-white' : 'text-warm-800'
+  const bgClass   = isHome && !scrolled
+    ? 'bg-transparent'
+    : 'bg-cream-50/95 backdrop-blur-md shadow-sm border-b border-cream-200'
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${bgClass}`}>
@@ -27,45 +29,42 @@ export default function Navbar() {
           Wanderlust
         </Link>
 
-        {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">
           {user && (
             <>
-              <Link to="/admin" className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-70 ${textClass}`}>
-                <PenSquare size={15} /> Écrire
+              <Link to="/admin" className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-60 ${textClass}`}>
+                <PenSquare size={14} /> Écrire
               </Link>
-              <button onClick={logout} className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-70 ${textClass}`}>
-                <LogOut size={15} /> Déconnexion
+              <button onClick={logout} className={`flex items-center gap-1.5 text-sm font-medium transition-colors hover:opacity-60 ${textClass}`}>
+                <LogOut size={14} /> Déconnexion
               </button>
             </>
           )}
           {!user && (
-            <Link to="/login" className={`text-sm font-medium transition-colors hover:opacity-70 ${textClass}`}>
+            <Link to="/login" className={`text-sm font-medium transition-colors hover:opacity-60 ${textClass}`}>
               Connexion
             </Link>
           )}
         </div>
 
-        {/* Mobile */}
         <button className={`md:hidden ${textClass}`} onClick={() => setMenuOpen(v => !v)}>
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-stone-100 px-6 py-4 space-y-3">
+        <div className="md:hidden bg-cream-50 border-t border-cream-200 px-6 py-4 space-y-3">
           {user ? (
             <>
-              <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-stone-700 font-medium text-sm">
-                <PenSquare size={15} /> Écrire un guide
+              <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-warm-700 font-medium text-sm">
+                <PenSquare size={14} /> Écrire un guide
               </Link>
-              <button onClick={() => { logout(); setMenuOpen(false) }} className="flex items-center gap-2 text-stone-700 font-medium text-sm">
-                <LogOut size={15} /> Déconnexion
+              <button onClick={() => { logout(); setMenuOpen(false) }} className="flex items-center gap-2 text-warm-700 font-medium text-sm">
+                <LogOut size={14} /> Déconnexion
               </button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setMenuOpen(false)} className="text-stone-700 font-medium text-sm">Connexion</Link>
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="text-warm-700 font-medium text-sm">Connexion</Link>
           )}
         </div>
       )}

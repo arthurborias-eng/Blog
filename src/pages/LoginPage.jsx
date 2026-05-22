@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const { login }   = useAuth()
+  const navigate    = useNavigate()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading]   = useState(false)
@@ -19,30 +19,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-cream-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-4xl font-bold text-stone-900 mb-2 text-center">Wanderlust</h1>
-        <p className="text-stone-400 text-sm text-center mb-10">Espace rédaction</p>
+        <h1 className="font-serif text-4xl font-bold text-warm-800 mb-1 text-center">Wanderlust</h1>
+        <p className="text-warm-300 text-sm text-center mb-10 italic">Espace rédaction</p>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-sm border border-stone-100 p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-sm border border-cream-200 p-8 space-y-5">
           <div>
-            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Email</label>
+            <label className="block text-xs font-semibold text-warm-500 uppercase tracking-wider mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-stone-400 text-stone-900 bg-stone-50 text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-cream-200 focus:outline-none focus:border-terra-400 text-warm-800 bg-cream-50 text-sm transition-colors"
               placeholder="vous@exemple.fr"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-stone-700 mb-1.5">Mot de passe</label>
+            <label className="block text-xs font-semibold text-warm-500 uppercase tracking-wider mb-2">Mot de passe</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:border-stone-400 text-stone-900 bg-stone-50 text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-cream-200 focus:outline-none focus:border-terra-400 text-warm-800 bg-cream-50 text-sm transition-colors"
               placeholder="••••••••"
               required
             />
@@ -50,7 +50,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
+            className="w-full py-3.5 bg-terra-500 hover:bg-terra-600 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
           >
             {loading ? 'Connexion…' : 'Se connecter'}
           </button>

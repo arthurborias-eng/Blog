@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Calendar } from 'lucide-react'
-
-const TYPE_ICONS = { food: '🍽️', visit: '🏛️', experience: '✨', story: '📖', tip: '💡' }
+import { MapPin } from 'lucide-react'
 
 export default function GuideCard({ guide, featured = false }) {
   const date = new Date(guide.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -13,23 +11,23 @@ export default function GuideCard({ guide, featured = false }) {
         {guide.cover_url ? (
           <img src={guide.cover_url} alt={guide.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-stone-700 to-stone-900" />
+          <div className="w-full h-full bg-gradient-to-br from-warm-600 to-warm-800" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8">
-          <div className="flex items-center gap-2 text-white/70 text-sm mb-3">
-            <MapPin size={13} />
+          <div className="flex items-center gap-2 text-white/60 text-xs font-medium tracking-widest uppercase mb-3">
+            <MapPin size={11} />
             <span>{guide.city}, {guide.country}</span>
           </div>
           <h2 className="font-serif text-3xl md:text-4xl font-bold text-white leading-tight mb-3 group-hover:opacity-90 transition-opacity">
             {guide.title}
           </h2>
           {guide.intro && (
-            <p className="text-white/75 text-sm leading-relaxed line-clamp-2 max-w-xl">{guide.intro}</p>
+            <p className="text-white/65 text-sm leading-relaxed line-clamp-2 max-w-xl">{guide.intro}</p>
           )}
-          <div className="mt-4 flex items-center gap-4 text-white/60 text-xs">
+          <div className="mt-5 flex items-center gap-4 text-white/45 text-xs">
             <span>{date}</span>
-            {sectionCount > 0 && <span>{sectionCount} adresse{sectionCount > 1 ? 's' : ''}</span>}
+            {sectionCount > 0 && <span>· {sectionCount} adresse{sectionCount > 1 ? 's' : ''}</span>}
           </div>
         </div>
       </Link>
@@ -42,26 +40,22 @@ export default function GuideCard({ guide, featured = false }) {
         {guide.cover_url ? (
           <img src={guide.cover_url} alt={guide.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-stone-200 to-stone-300 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
             <span className="text-4xl">🌍</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
       </div>
-      <div className="flex items-center gap-1.5 text-stone-400 text-xs font-medium mb-2">
-        <MapPin size={11} />
+      <div className="flex items-center gap-1.5 text-terra-400 text-xs font-medium tracking-wide uppercase mb-2">
+        <MapPin size={10} />
         <span>{guide.city}, {guide.country}</span>
       </div>
-      <h3 className="font-serif text-xl font-semibold text-stone-900 leading-snug mb-2 group-hover:text-stone-600 transition-colors">
+      <h3 className="font-serif text-xl font-semibold text-warm-800 leading-snug mb-2 group-hover:text-terra-500 transition-colors">
         {guide.title}
       </h3>
       {guide.intro && (
-        <p className="text-stone-500 text-sm leading-relaxed line-clamp-2">{guide.intro}</p>
+        <p className="text-warm-400 text-sm leading-relaxed line-clamp-2">{guide.intro}</p>
       )}
-      <div className="mt-3 flex items-center gap-3 text-stone-400 text-xs">
-        <span>{date}</span>
-        {sectionCount > 0 && <span>· {sectionCount} adresse{sectionCount > 1 ? 's' : ''}</span>}
-      </div>
+      <div className="mt-3 text-warm-300 text-xs">{date}</div>
     </Link>
   )
 }
