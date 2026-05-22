@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabase'
 import GuideCard from '../components/GuideCard'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, MapPin, BookOpen, Globe } from 'lucide-react'
 
 export default function HomePage() {
   const [guides, setGuides]             = useState([])
@@ -60,9 +60,25 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
-          <div className="w-px h-14 bg-white/25" />
-        </div>
+        {/* Stats bar */}
+        {guides.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm border-t border-white/10">
+            <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-8">
+              <div className="flex items-center gap-2 text-white/70 text-sm">
+                <BookOpen size={14} className="text-terra-300" />
+                <span><strong className="text-white">{guides.length}</strong> guide{guides.length > 1 ? 's' : ''}</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/70 text-sm">
+                <Globe size={14} className="text-terra-300" />
+                <span><strong className="text-white">{new Set(guides.map(g => g.country)).size}</strong> pays</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/70 text-sm">
+                <MapPin size={14} className="text-terra-300" />
+                <span><strong className="text-white">{guides.reduce((acc, g) => acc + (g.sections?.length || 0), 0)}</strong> adresses</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
