@@ -1,24 +1,22 @@
 import { useEffect, useRef } from 'react'
 
-const TYPE_CONFIG = {
-  food:       { emoji: '🍽️', color: '#b5674d' },
-  visit:      { emoji: '🏛️', color: '#8a7560' },
-  experience: { emoji: '✨', color: '#9e8c6a' },
-  story:      { emoji: '📖', color: '#a08070' },
-  tip:        { emoji: '💡', color: '#b09070' },
+const TYPE_LABELS = {
+  food: 'Où manger', visit: 'À voir', experience: 'Expérience', story: 'Récit', tip: 'Conseil',
+}
+const TYPE_COLOR = {
+  food: '#b5674d', visit: '#8a7560', experience: '#9e8c6a', story: '#a08070', tip: '#b09070',
 }
 
 function makeIcon(L, type) {
-  const cfg = TYPE_CONFIG[type] || TYPE_CONFIG.tip
+  const color = TYPE_COLOR[type] || '#b5674d'
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 40 48">
-      <filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/></filter>
-      <path d="M20 2C12.27 2 6 8.27 6 16c0 11 14 30 14 30s14-19 14-30C34 8.27 27.73 2 20 2z"
-        fill="${cfg.color}" filter="url(#s)"/>
-      <circle cx="20" cy="16" r="9" fill="white"/>
-      <text x="20" y="21" text-anchor="middle" font-size="11">${cfg.emoji}</text>
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+      <filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.2)"/></filter>
+      <path d="M14 1C8.48 1 4 5.48 4 11c0 8.5 10 24 10 24s10-15.5 10-24C24 5.48 19.52 1 14 1z"
+        fill="${color}" filter="url(#s)"/>
+      <circle cx="14" cy="11" r="5" fill="white" opacity="0.9"/>
     </svg>`
-  return L.divIcon({ html: svg, className: '', iconSize: [40, 48], iconAnchor: [20, 48], popupAnchor: [0, -50] })
+  return L.divIcon({ html: svg, className: '', iconSize: [28, 36], iconAnchor: [14, 36], popupAnchor: [0, -38] })
 }
 
 export default function GuideMap({ sections }) {
@@ -64,8 +62,8 @@ export default function GuideMap({ sections }) {
           const marker = L.marker(latlng, { icon: makeIcon(L, sec.type) }).addTo(map)
           marker.bindPopup(`
             <div style="font-family:'Inter',sans-serif;min-width:180px">
-              <div style="font-size:11px;color:#b5674d;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">
-                ${TYPE_CONFIG[sec.type]?.emoji || ''} ${sec.type === 'food' ? 'Où manger' : sec.type === 'visit' ? 'À voir' : 'Expérience'}
+              <div style="font-size:10px;color:#b5674d;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px">
+                ${TYPE_LABELS[sec.type] || sec.type}
               </div>
               <div style="font-size:14px;font-weight:700;color:#2d2018;margin-bottom:4px;font-family:'Playfair Display',serif">${sec.title}</div>
               <div style="font-size:12px;color:#7a6558">${sec.address}</div>

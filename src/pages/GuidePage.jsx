@@ -53,7 +53,7 @@ export default function GuidePage() {
   const sections = guide.sections || []
   const mins     = readingTime(sections)
 
-  const typeLabels = { food: '🍽️ Où manger', visit: '🏛️ À voir', experience: '✨ Expériences', story: '📖 Récits', tip: '💡 Conseils' }
+  const typeLabels = { food: 'Où manger', visit: 'À voir', experience: 'Expériences', story: 'Récits', tip: 'Conseils' }
   const typeCounts = sections.reduce((acc, s) => { acc[s.type] = (acc[s.type] || 0) + 1; return acc }, {})
 
   const hasMap = sections.some(s => s.address?.trim())

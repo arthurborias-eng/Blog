@@ -3,11 +3,11 @@ import { MapPin } from 'lucide-react'
 import PhotoLightbox from './PhotoLightbox'
 
 const TYPE_CONFIG = {
-  food:       { label: 'Où manger',    emoji: '🍽️', color: 'bg-terra-300/20 text-terra-600 border-terra-300/40' },
-  visit:      { label: 'À voir',       emoji: '🏛️', color: 'bg-warm-100 text-warm-600 border-warm-200' },
-  experience: { label: 'Expérience',   emoji: '✨', color: 'bg-cream-200 text-warm-600 border-cream-300' },
-  story:      { label: 'Récit',        emoji: '📖', color: 'bg-cream-100 text-warm-500 border-cream-200' },
-  tip:        { label: 'Bon à savoir', emoji: '💡', color: 'bg-cream-200 text-warm-500 border-cream-300' },
+  food:       { label: 'Où manger',    color: 'bg-terra-300/20 text-terra-600 border-terra-300/40' },
+  visit:      { label: 'À voir',       color: 'bg-warm-100 text-warm-600 border-warm-200' },
+  experience: { label: 'Expérience',   color: 'bg-cream-200 text-warm-600 border-cream-300' },
+  story:      { label: 'Récit',        color: 'bg-cream-100 text-warm-500 border-cream-200' },
+  tip:        { label: 'Bon à savoir', color: 'bg-cream-200 text-warm-500 border-cream-300' },
 }
 
 export default function SectionBlock({ section }) {
@@ -18,8 +18,8 @@ export default function SectionBlock({ section }) {
   return (
     <div className="mb-16">
       <div className="flex items-center gap-3 mb-5">
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${cfg.color}`}>
-          {cfg.emoji} {cfg.label}
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${cfg.color}`}>
+          {cfg.label}
         </span>
       </div>
 

@@ -8,11 +8,11 @@ import { Plus, Trash2, X, Upload, ArrowLeft, Check } from 'lucide-react'
 const IMGBB_KEY = import.meta.env.VITE_IMGBB_API_KEY
 
 const SECTION_TYPES = [
-  { value: 'food',       label: '🍽️ Où manger'    },
-  { value: 'visit',      label: '🏛️ À voir'        },
-  { value: 'experience', label: '✨ Expérience'     },
-  { value: 'story',      label: '📖 Récit'          },
-  { value: 'tip',        label: '💡 Bon à savoir'   },
+  { value: 'food',       label: 'Où manger'    },
+  { value: 'visit',      label: 'À voir'       },
+  { value: 'experience', label: 'Expérience'   },
+  { value: 'story',      label: 'Récit'        },
+  { value: 'tip',        label: 'Bon à savoir' },
 ]
 
 async function uploadImage(file) {
