@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { Plus, Trash2, X, Upload, ArrowLeft, Check } from 'lucide-react'
 
-const IMGBB_KEY = import.meta.env.VITE_IMGBB_API_KEY || '6d5d58b2939636b3e24c80e573fe005a'
 
 const SECTION_TYPES = [
   { value: 'food',       label: 'Où manger'    },
@@ -26,13 +25,12 @@ async function uploadImage(file) {
   canvas.width  = Math.round(img.width  * scale)
   canvas.height = Math.round(img.height * scale)
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-  const base64 = canvas.toDataURL('image/jpeg', 0.82).split(',')[1]
-  const formData = new FormData()
-  formData.append('image', base64)
-  const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData })
-  const data = await res.json()
-  if (!data.success) throw new Error('Upload échoué')
-  return data.data.url
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.82))
+  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+  const { error } = await supabase.storage.from('image').upload(filename, blob, { contentType: 'image/jpeg' })
+  if (error) throw new Error(error.message)
+  const { data: { publicUrl } } = supabase.storage.from('image').getPublicUrl(filename)
+  return publicUrl
 }
 
 function newSection() {
