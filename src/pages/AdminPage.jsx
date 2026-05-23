@@ -27,9 +27,9 @@ async function uploadImage(file) {
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
   const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.82))
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
-  const { error } = await supabase.storage.from('image').upload(filename, blob, { contentType: 'image/jpeg' })
+  const { error } = await supabase.storage.from('Image').upload(filename, blob, { contentType: 'image/jpeg' })
   if (error) throw new Error(error.message)
-  const { data: { publicUrl } } = supabase.storage.from('image').getPublicUrl(filename)
+  const { data: { publicUrl } } = supabase.storage.from('Image').getPublicUrl(filename)
   return publicUrl
 }
 
