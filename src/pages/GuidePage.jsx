@@ -1,23 +1,30 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../context/AuthContext'
 import SectionBlock from '../components/SectionBlock'
 import GuideMap from '../components/GuideMap'
 import ReadingProgress from '../components/ReadingProgress'
-import { MapPin, ArrowLeft, Pencil, Share2, Check, Clock } from 'lucide-react'
+import { MapPin, ArrowLeft, Pencil, Share2, Check, Clock, Trash2 } from 'lucide-react'
 
 function readingTime(sections) {
-  const words = sections.reduce((acc, s) => acc + (s.description || '').split(' ').length, 0)
+  const words = sections.reduce((acc, s) => {
+    const blockText = (s.blocks || []).map(b => b.text || '').join(' ')
+    const legacy = s.description || ''
+    return acc + (blockText || legacy).split(' ').length
+  }, 0)
   return Math.max(2, Math.round(words / 200))
 }
 
 export default function GuidePage() {
-  const { id }   = useParams()
-  const { user } = useAuth()
-  const [guide,   setGuide]   = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [copied,  setCopied]  = useState(false)
+  const { id }      = useParams()
+  const { user }    = useAuth()
+  const navigate    = useNavigate()
+  const [guide,     setGuide]     = useState(null)
+  const [loading,   setLoading]   = useState(true)
+  const [copied,    setCopied]    = useState(false)
+  const [confirmDel, setConfirmDel] = useState(false)
+  const [deleting,  setDeleting]  = useState(false)
 
   useEffect(() => {
     supabase.from('guides').select('*').eq('id', id).single()
@@ -34,6 +41,13 @@ export default function GuidePage() {
         setTimeout(() => setCopied(false), 2000)
       }
     } catch {}
+  }
+
+  const handleDelete = async () => {
+    if (!confirmDel) { setConfirmDel(true); return }
+    setDeleting(true)
+    await supabase.from('guides').delete().eq('id', id)
+    navigate('/')
   }
 
   if (loading) return (
@@ -55,8 +69,7 @@ export default function GuidePage() {
 
   const typeLabels = { food: 'Où manger', visit: 'À voir', experience: 'Expériences', story: 'Récits', tip: 'Conseils' }
   const typeCounts = sections.reduce((acc, s) => { acc[s.type] = (acc[s.type] || 0) + 1; return acc }, {})
-
-  const hasMap = sections.some(s => s.address?.trim())
+  const hasMap     = sections.some(s => s.address?.trim())
 
   return (
     <div className="min-h-screen bg-cream-50">
@@ -89,21 +102,27 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* Action buttons on hero */}
+        {/* Action buttons */}
         <div className="absolute top-20 right-6 flex gap-2">
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs font-medium px-4 py-2 rounded-full transition-colors border border-white/20"
-          >
+          <button onClick={handleShare}
+            className="flex items-center gap-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs font-medium px-4 py-2 rounded-full transition-colors border border-white/20">
             {copied ? <><Check size={12} /> Copié !</> : <><Share2 size={12} /> Partager</>}
           </button>
           {user && (
-            <Link
-              to={`/admin?edit=${guide.id}`}
-              className="flex items-center gap-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs font-medium px-4 py-2 rounded-full transition-colors border border-white/20"
-            >
-              <Pencil size={12} /> Modifier
-            </Link>
+            <>
+              <Link to={`/admin?edit=${guide.id}`}
+                className="flex items-center gap-2 bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white text-xs font-medium px-4 py-2 rounded-full transition-colors border border-white/20">
+                <Pencil size={12} /> Modifier
+              </Link>
+              <button onClick={handleDelete} disabled={deleting}
+                className={`flex items-center gap-2 backdrop-blur-sm text-xs font-medium px-4 py-2 rounded-full transition-colors border ${
+                  confirmDel
+                    ? 'bg-red-500/80 hover:bg-red-600/80 text-white border-red-400/40'
+                    : 'bg-white/15 hover:bg-white/25 text-white border-white/20'
+                }`}>
+                <Trash2 size={12} /> {confirmDel ? 'Confirmer ?' : 'Supprimer'}
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -114,24 +133,20 @@ export default function GuidePage() {
 
           {/* Main */}
           <div>
-            {/* Intro quote */}
             {guide.intro && (
               <p className="font-serif text-xl md:text-2xl text-warm-600 leading-relaxed mb-16 italic border-l-2 border-terra-300 pl-6">
                 {guide.intro}
               </p>
             )}
 
-            {/* Map */}
             {hasMap && <GuideMap sections={sections} />}
 
-            {/* Sections */}
             {sections.length === 0 ? (
               <p className="text-warm-300 text-center py-16">Aucune section dans ce guide.</p>
             ) : (
               sections.map(s => <SectionBlock key={s.id} section={s} />)
             )}
 
-            {/* End of guide */}
             {sections.length > 0 && (
               <div className="text-center py-12">
                 <div className="w-8 h-px bg-terra-300 mx-auto mb-6" />
@@ -147,8 +162,6 @@ export default function GuidePage() {
           {sections.length > 0 && (
             <aside className="hidden lg:block">
               <div className="sticky top-24 space-y-4">
-
-                {/* Summary */}
                 <div className="bg-white border border-cream-200 rounded-2xl p-6">
                   <p className="font-serif text-base font-semibold text-warm-700 mb-4">Dans ce guide</p>
                   <ul className="space-y-2.5">
@@ -160,23 +173,26 @@ export default function GuidePage() {
                     ))}
                   </ul>
                   <div className="mt-5 pt-5 border-t border-cream-100 space-y-1.5">
-                    <p className="text-xs text-warm-300 flex items-center gap-1.5">
-                      <MapPin size={10} /> {guide.city}, {guide.country}
-                    </p>
-                    <p className="text-xs text-warm-300 flex items-center gap-1.5">
-                      <Clock size={10} /> {mins} min de lecture
-                    </p>
+                    <p className="text-xs text-warm-300 flex items-center gap-1.5"><MapPin size={10} /> {guide.city}, {guide.country}</p>
+                    <p className="text-xs text-warm-300 flex items-center gap-1.5"><Clock size={10} /> {mins} min de lecture</p>
                   </div>
                 </div>
 
-                {/* Share */}
-                <button
-                  onClick={handleShare}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-cream-200 bg-white text-warm-500 hover:border-terra-300 hover:text-terra-500 text-sm font-medium transition-colors"
-                >
+                <button onClick={handleShare}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-cream-200 bg-white text-warm-500 hover:border-terra-300 hover:text-terra-500 text-sm font-medium transition-colors">
                   {copied ? <><Check size={13} /> Lien copié !</> : <><Share2 size={13} /> Partager ce guide</>}
                 </button>
 
+                {user && (
+                  <button onClick={handleDelete} disabled={deleting}
+                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl border text-sm font-medium transition-colors ${
+                      confirmDel
+                        ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100'
+                        : 'border-cream-200 bg-white text-warm-300 hover:border-red-200 hover:text-red-400'
+                    }`}>
+                    <Trash2 size={13} /> {confirmDel ? 'Confirmer la suppression' : 'Supprimer ce guide'}
+                  </button>
+                )}
               </div>
             </aside>
           )}

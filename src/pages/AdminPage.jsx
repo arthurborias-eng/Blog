@@ -1,18 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { Plus, Trash2, X, Upload, ArrowLeft, Check } from 'lucide-react'
-
-
-const SECTION_TYPES = [
-  { value: 'food',       label: 'Où manger'    },
-  { value: 'visit',      label: 'À voir'       },
-  { value: 'experience', label: 'Expérience'   },
-  { value: 'story',      label: 'Récit'        },
-  { value: 'tip',        label: 'Bon à savoir' },
-]
+import BlockEditor from '../components/BlockEditor'
 
 async function uploadImage(file) {
   const img = new Image()
@@ -33,8 +25,24 @@ async function uploadImage(file) {
   return publicUrl
 }
 
+const SECTION_TYPES = [
+  { value: 'food',       label: 'Où manger'    },
+  { value: 'visit',      label: 'À voir'       },
+  { value: 'experience', label: 'Expérience'   },
+  { value: 'story',      label: 'Récit'        },
+  { value: 'tip',        label: 'Bon à savoir' },
+]
+
 function newSection() {
-  return { id: crypto.randomUUID(), type: 'food', title: '', address: '', description: '', images: [] }
+  return { id: crypto.randomUUID(), type: 'food', title: '', address: '', blocks: [] }
+}
+
+function migrateSection(s) {
+  if (s.blocks?.length) return s
+  const blocks = []
+  if (s.description?.trim()) blocks.push({ id: crypto.randomUUID(), type: 'paragraph', text: s.description })
+  if (s.images?.length) s.images.forEach(url => blocks.push({ id: crypto.randomUUID(), type: 'image', url, caption: '' }))
+  return { ...s, blocks }
 }
 
 export default function AdminPage() {
@@ -52,7 +60,7 @@ export default function AdminPage() {
   const [published, setPublished] = useState(true)
   const [saving,    setSaving]    = useState(false)
   const [uploadingCover, setUploadingCover] = useState(false)
-  const [uploadingSec,   setUploadingSec]   = useState({})
+  const [uploadingBlock, setUploadingBlock] = useState({})
 
   useEffect(() => { if (!user) navigate('/login') }, [user])
 
@@ -62,7 +70,7 @@ export default function AdminPage() {
       if (!data) return
       setTitle(data.title); setCity(data.city); setCountry(data.country)
       setIntro(data.intro || ''); setCoverUrl(data.cover_url || '')
-      setSections(data.sections?.length ? data.sections : [newSection()])
+      setSections(data.sections?.length ? data.sections.map(migrateSection) : [newSection()])
       setPublished(data.published)
     })
   }, [editId])
@@ -75,21 +83,22 @@ export default function AdminPage() {
     finally { setUploadingCover(false) }
   }
 
-  const handleSectionImage = async (secId, e) => {
-    const files = Array.from(e.target.files); if (!files.length) return
-    setUploadingSec(prev => ({ ...prev, [secId]: true }))
+  const handleBlockImageUpload = async (secId, blockId, file) => {
+    setUploadingBlock(prev => ({ ...prev, [blockId]: true }))
     try {
-      const urls = await Promise.all(files.map(uploadImage))
-      setSections(prev => prev.map(s => s.id === secId ? { ...s, images: [...s.images, ...urls] } : s))
+      const url = await uploadImage(file)
+      setSections(prev => prev.map(s =>
+        s.id === secId
+          ? { ...s, blocks: s.blocks.map(b => b.id === blockId ? { ...b, url } : b) }
+          : s
+      ))
     } catch (err) { toast.error(err.message) }
-    finally { setUploadingSec(prev => ({ ...prev, [secId]: false })) }
+    finally { setUploadingBlock(prev => ({ ...prev, [blockId]: false })) }
   }
 
   const updateSection = (id, field, value) =>
     setSections(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
   const removeSection = (id) => setSections(prev => prev.filter(s => s.id !== id))
-  const removeImage   = (secId, idx) => setSections(prev =>
-    prev.map(s => s.id === secId ? { ...s, images: s.images.filter((_, i) => i !== idx) } : s))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -126,11 +135,8 @@ export default function AdminPage() {
               {editId ? 'Modifier le guide' : 'Nouveau guide'}
             </h1>
           </div>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex items-center gap-2 bg-terra-500 hover:bg-terra-600 disabled:opacity-50 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors"
-          >
+          <button onClick={handleSubmit} disabled={saving}
+            className="flex items-center gap-2 bg-terra-500 hover:bg-terra-600 disabled:opacity-50 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors">
             <Check size={14} />
             {saving ? 'Enregistrement…' : editId ? 'Mettre à jour' : 'Publier'}
           </button>
@@ -164,12 +170,8 @@ export default function AdminPage() {
           <div className="bg-white rounded-2xl border border-cream-200 p-6 space-y-5">
             <div>
               <label className="block text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">Titre *</label>
-              <input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="3 jours à Lisbonne"
-                className="w-full text-2xl font-serif font-semibold text-warm-800 placeholder-cream-300 focus:outline-none bg-transparent"
-              />
+              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="3 jours à Lisbonne"
+                className="w-full text-2xl font-serif font-semibold text-warm-800 placeholder-cream-300 focus:outline-none bg-transparent" />
             </div>
             <div className="h-px bg-cream-100" />
             <div className="grid grid-cols-2 gap-4">
@@ -199,6 +201,7 @@ export default function AdminPage() {
             <div className="space-y-4">
               {sections.map(sec => (
                 <div key={sec.id} className="bg-white rounded-2xl border border-cream-200 p-6">
+                  {/* Type + delete */}
                   <div className="flex items-start justify-between gap-3 mb-5">
                     <div className="flex flex-wrap gap-2">
                       {SECTION_TYPES.map(t => (
@@ -215,41 +218,28 @@ export default function AdminPage() {
                   </div>
 
                   <div className="space-y-4">
+                    {/* Title */}
                     <input value={sec.title} onChange={e => updateSection(sec.id, 'title', e.target.value)}
                       placeholder="Nom du lieu ou titre de la section"
                       className="w-full font-serif text-xl font-semibold text-warm-800 placeholder-cream-300 focus:outline-none bg-transparent" />
 
+                    {/* Address */}
                     {(sec.type === 'food' || sec.type === 'visit') && (
-                      <input value={sec.address} onChange={e => updateSection(sec.id, 'address', e.target.value)}
+                      <input value={sec.address || ''} onChange={e => updateSection(sec.id, 'address', e.target.value)}
                         placeholder="Adresse complète"
                         className="w-full text-sm text-warm-400 placeholder-cream-300 focus:outline-none bg-transparent" />
                     )}
 
-                    <textarea value={sec.description} onChange={e => updateSection(sec.id, 'description', e.target.value)}
-                      rows={4} placeholder="Description, anecdotes, conseils…"
-                      className="w-full text-warm-500 placeholder-cream-300 focus:outline-none bg-transparent resize-none text-sm leading-relaxed" />
+                    {/* Separator */}
+                    <div className="h-px bg-cream-100" />
 
-                    {sec.images.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {sec.images.map((url, i) => (
-                          <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden group">
-                            <img src={url} alt="" className="w-full h-full object-cover" />
-                            <button type="button" onClick={() => removeImage(sec.id, i)}
-                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <X size={14} className="text-white" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <label className="inline-flex items-center gap-2 text-xs text-warm-300 hover:text-terra-400 cursor-pointer transition-colors">
-                      {uploadingSec[sec.id]
-                        ? <div className="w-3.5 h-3.5 border border-cream-200 border-t-terra-400 rounded-full animate-spin" />
-                        : <Upload size={13} />}
-                      <span>Ajouter des photos</span>
-                      <input type="file" accept="image/*" multiple onChange={e => handleSectionImage(sec.id, e)} className="hidden" />
-                    </label>
+                    {/* Block editor */}
+                    <BlockEditor
+                      blocks={sec.blocks || []}
+                      onChange={blocks => updateSection(sec.id, 'blocks', blocks)}
+                      onImageUpload={(blockId, file) => handleBlockImageUpload(sec.id, blockId, file)}
+                      uploading={uploadingBlock}
+                    />
                   </div>
                 </div>
               ))}
