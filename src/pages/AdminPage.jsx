@@ -17,17 +17,18 @@ const SECTION_TYPES = [
 
 async function uploadImage(file) {
   const img = new Image()
-  const url = URL.createObjectURL(file)
-  await new Promise(res => { img.onload = res; img.src = url })
+  const objectUrl = URL.createObjectURL(file)
+  await new Promise(res => { img.onload = res; img.src = objectUrl })
+  URL.revokeObjectURL(objectUrl)
   const MAX = 1400
   const scale = Math.min(1, MAX / Math.max(img.width, img.height))
   const canvas = document.createElement('canvas')
-  canvas.width  = img.width  * scale
-  canvas.height = img.height * scale
+  canvas.width  = Math.round(img.width  * scale)
+  canvas.height = Math.round(img.height * scale)
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.82))
+  const base64 = canvas.toDataURL('image/jpeg', 0.82).split(',')[1]
   const formData = new FormData()
-  formData.append('image', blob)
+  formData.append('image', base64)
   const res  = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData })
   const data = await res.json()
   if (!data.success) throw new Error('Upload échoué')
