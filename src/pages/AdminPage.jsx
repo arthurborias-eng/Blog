@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { Plus, Trash2, X, Upload, ArrowLeft, Check } from 'lucide-react'
 
-const IMGBB_KEY = import.meta.env.VITE_IMGBB_API_KEY
+const IMGBB_KEY = import.meta.env.VITE_IMGBB_API_KEY || '6d5d58b2939636b3e24c80e573fe005a'
 
 const SECTION_TYPES = [
   { value: 'food',       label: 'Où manger'    },
